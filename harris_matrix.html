@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matriz de Harris</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #1a1a1a;
+  color: #e0e0e0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  padding: 1rem 1.5rem;
+  border-bottom: 0.5px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+header h1 { font-size: 16px; font-weight: 500; color: #fff; }
+header p  { font-size: 12px; color: #888; margin-top: 2px; }
+
+.toolbar {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+}
+
+button {
+  padding: 7px 16px; font-size: 13px; font-weight: 500;
+  border: 0.5px solid #444; border-radius: 8px;
+  background: transparent; color: #e0e0e0;
+  cursor: pointer; transition: background 0.15s;
+}
+button:hover { background: #2a2a2a; }
+button:active { transform: scale(0.98); }
+button.primary { border-color: #3B8BD4; color: #3B8BD4; }
+button.primary:hover { background: rgba(59,139,212,0.1); }
+
+.main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.sidebar {
+  width: 280px;
+  min-width: 220px;
+  max-width: 340px;
+  border-right: 0.5px solid #333;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  gap: 10px;
+  resize: horizontal;
+  overflow: auto;
+}
+
+.sidebar label { font-size: 12px; color: #888; display: block; margin-bottom: 4px; }
+
+textarea {
+  width: 100%; font-family: "SF Mono", "Fira Code", monospace; font-size: 11px;
+  resize: vertical; flex: 1; min-height: 200px;
+  border: 0.5px solid #444; border-radius: 8px;
+  background: #111; color: #e0e0e0;
+  padding: 10px 12px; line-height: 1.7;
+}
+textarea:focus { outline: none; border-color: #3B8BD4; }
+
+.msg { font-size: 11px; line-height: 1.6; min-height: 14px; }
+.msg.err  { color: #e05555; }
+.msg.warn { color: #d4a017; }
+.msg.info { color: #666; }
+
+.legend {
+  display: flex; flex-direction: column; gap: 6px;
+  font-size: 11px; color: #888; padding-top: 6px;
+  border-top: 0.5px solid #333;
+}
+.legend-row { display: flex; align-items: center; gap: 8px; }
+
+.canvas-area {
+  flex: 1;
+  overflow: auto;
+  padding: 1rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+#matrix-svg { display: block; }
+
+/* SVG text defaults */
+svg text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Matriz de Harris</h1>
+    <p>Formato: UE1, Relación, UE2 [, Tipo] [, Orden] [, Etiqueta]</p>
+  </div>
+  <div class="toolbar">
+    <button class="primary" onclick="build()">⟳ Generar</button>
+    <button onclick="exportSVG()">↓ Exportar SVG</button>
+    <button onclick="exportPNG()">↓ Exportar PNG</button>
+  </div>
+</header>
+
+<div class="main">
+  <div class="sidebar">
+    <label>Datos CSV</label>
+    <textarea id="csv" spellcheck="false">UE1,Relacion,UE2,Tipo,Orden,Etiqueta
+400,Sobre,403,Estrato,2,Topsoil
+400,Sobre,402,Estrato,2
+400,Sobre,404,Estrato,2
+403,Sobre,407,Estrato,1
+407,Sobre,408,Estrato,1
+408,Sobre,410,Estrato,1
+404,Sobre,409,Estrato,3
+409,Sobre,413,Estrato,3
+402,Sobre,413,Estrato,2
+410,Sobre,413,Estrato,1
+410,Sobre,414,Estrato,1
+413,Sobre,412,Estrato,2
+412,Sobre,414,Corte,2,Cut for foundation wall
+409,Sobre,414,Estrato,3,Roca Madre
+414,Sobre,415,Estrato,2</textarea>
+
+    <div id="warn" class="msg warn"></div>
+    <div id="err"  class="msg err"></div>
+    <div id="info" class="msg info"></div>
+
+    <div class="legend">
+      <div class="legend-row">
+        <svg width="22" height="16"><rect x="1" y="2" width="20" height="12" rx="3" fill="#222" stroke="#aaa" stroke-width="1"/></svg>
+        Estrato
+      </div>
+      <div class="legend-row">
+        <svg width="28" height="18"><ellipse cx="14" cy="9" rx="13" ry="8" fill="#222" stroke="#D85A30" stroke-width="1.5"/></svg>
+        Corte / interfaz
+      </div>
+      <div class="legend-row">
+        <svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#3B8BD4" stroke-width="1.5"/></svg>
+        Sobre
+      </div>
+      <div class="legend-row">
+        <svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#1D9E75" stroke-width="1.5" stroke-dasharray="4 3"/></svg>
+        Contemporánea
+      </div>
+    </div>
+  </div>
+
+  <div class="canvas-area">
+    <svg id="matrix-svg"></svg>
+  </div>
+</div>
+
+<script>
+const NW=66, NH=32, HGAP=50, VGAP=80, MX=80, MY=46;
+const LABEL_OFFSET=14;
+const C_BLUE='#3B8BD4', C_GREEN='#1D9E75', C_CORAL='#D85A30';
+const C_TEXT='#e0e0e0', C_TEXT_SEC='#888', C_TEXT_TERT='#555';
+const C_STROKE='#aaa', C_BG='#1a1a1a', C_NODE='#222';
+
+function normalize(s){
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'');
+}
+
+function parseCSV(raw){
+  const REL={sobre:'sobre',encima:'sobre',superposicion:'sobre',corta:'sobre',interfaz:'sobre',contemporanea:'contemp',correlacion:'contemp',sincontacto:'nocontact'};
+  const TIPO_MAP={estrato:'estrato',corte:'corte',interfaz:'corte'};
+  const lines=raw.trim().split('\n').map(l=>l.trim()).filter(Boolean);
+  const edges=[],errs=[],warns=[],explicitType={},nodeOrder={},nodeLabel={},firstSeen={};
+  let ai=0, start=/^ue|^capa|^unidad|^ue1/i.test(lines[0])?1:0;
+  for(let i=start;i<lines.length;i++){
+    const parts=lines[i].split(',');
+    if(parts.length<3){errs.push(`L${i+1}: faltan columnas`);continue;}
+    const u1=parts[0].trim(), relRaw=parts[1].trim(), u2=parts[2].trim();
+    const tipoRaw=normalize(parts[3]||'');
+    const ordenRaw=(parts[4]||'').trim();
+    const labelRaw=parts.slice(5).join(',').trim();
+    const rk=normalize(relRaw), type=REL[rk];
+    if(!type){errs.push(`L${i+1}: relación desconocida "${relRaw}"`);continue;}
+    [u1,u2].forEach(u=>{if(!(u in firstSeen))firstSeen[u]=ai++;});
+    let it=null;
+    if(tipoRaw&&TIPO_MAP[tipoRaw])it=TIPO_MAP[tipoRaw];
+    else if(rk==='corta'||rk==='interfaz')it='corte';
+    if(it){if(explicitType[u1]&&explicitType[u1]!==it)warns.push(`⚠ UE "${u1}": tipo contradictorio.`);else explicitType[u1]=it;}
+    if(ordenRaw!==''){const o=parseInt(ordenRaw);if(!isNaN(o)){if(nodeOrder[u1]!==undefined&&nodeOrder[u1]!==o)warns.push(`⚠ UE "${u1}": orden contradictorio.`);else nodeOrder[u1]=o;}}
+    if(labelRaw&&!nodeLabel[u1])nodeLabel[u1]=labelRaw;
+    edges.push({u1,u2,type});
+  }
+  return{edges,errs,warns,explicitType,nodeOrder,nodeLabel,firstSeen};
+}
+
+function getType(n,et){return et[n]||'estrato';}
+
+function assignLevels(nodes,edges){
+  const parent={};
+  nodes.forEach(n=>parent[n]=n);
+  function find(x){return parent[x]===x?x:(parent[x]=find(parent[x]));}
+  function union(a,b){parent[find(a)]=find(b);}
+  edges.filter(e=>e.type==='contemp').forEach(e=>union(e.u1,e.u2));
+  const rep=n=>find(n);
+  const groups=[...new Set(nodes.map(rep))];
+  const above=new Map(),inDeg=new Map();
+  groups.forEach(g=>{above.set(g,[]);inDeg.set(g,0);});
+  edges.filter(e=>e.type==='sobre').forEach(e=>{
+    const g1=rep(e.u1),g2=rep(e.u2);
+    if(g1===g2)return;
+    if(!above.get(g1).includes(g2)){above.get(g1).push(g2);inDeg.set(g2,inDeg.get(g2)+1);}
+  });
+  const level=new Map();
+  groups.forEach(g=>level.set(g,0));
+  const q=groups.filter(g=>inDeg.get(g)===0);
+  while(q.length){
+    const g=q.shift();
+    above.get(g).forEach(h=>{
+      if(level.get(g)+1>level.get(h))level.set(h,level.get(g)+1);
+      inDeg.set(h,inDeg.get(h)-1);
+      if(inDeg.get(h)===0)q.push(h);
+    });
+  }
+  const nl=new Map();
+  nodes.forEach(n=>nl.set(n,level.get(rep(n))));
+  return nl;
+}
+
+function nodeShape(n,p,tipo){
+  if(tipo==='corte'){
+    const rx=NW/2+5,ry=NH/2+4;
+    return `<ellipse cx="${p.cx}" cy="${p.cy}" rx="${rx}" ry="${ry}" fill="${C_NODE}" stroke="${C_CORAL}" stroke-width="1.5"/>
+    <text x="${p.cx}" y="${p.cy}" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="500" fill="${C_CORAL}">${n}</text>`;
+  }
+  return `<rect x="${p.x}" y="${p.y}" width="${NW}" height="${NH}" rx="4" fill="${C_NODE}" stroke="${C_STROKE}" stroke-width="1"/>
+  <text x="${p.cx}" y="${p.cy}" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="500" fill="${C_TEXT}">${n}</text>`;
+}
+
+function build(){
+  const raw=document.getElementById('csv').value;
+  const{edges,errs,warns,explicitType,nodeOrder,nodeLabel,firstSeen}=parseCSV(raw);
+  document.getElementById('err').textContent=errs.join('\n')||'';
+  document.getElementById('warn').textContent=warns.join('\n')||'';
+  if(!edges.length){document.getElementById('err').textContent='Sin relaciones válidas.';return;}
+
+  const nodeSet=new Set();
+  edges.forEach(e=>{nodeSet.add(e.u1);nodeSet.add(e.u2);});
+  const nodes=[...nodeSet];
+
+  const nlevel=assignLevels(nodes,edges);
+  const maxLvl=Math.max(...nlevel.values());
+
+  const byLvl=new Map();
+  nodes.forEach(n=>{const l=nlevel.get(n);if(!byLvl.has(l))byLvl.set(l,[]);byLvl.get(l).push(n);});
+
+  const MAX_ORDER=999999;
+  byLvl.forEach(grp=>{
+    grp.sort((a,b)=>{
+      const oa=nodeOrder[a]!==undefined?nodeOrder[a]:MAX_ORDER;
+      const ob=nodeOrder[b]!==undefined?nodeOrder[b]:MAX_ORDER;
+      if(oa!==ob)return oa-ob;
+      return(firstSeen[a]||0)-(firstSeen[b]||0);
+    });
+  });
+
+  const allOrders=new Set();
+  nodes.forEach(n=>{if(nodeOrder[n]!==undefined)allOrders.add(nodeOrder[n]);});
+  const sortedOrders=[...allOrders].sort((a,b)=>a-b);
+  const orderToCol={};
+  sortedOrders.forEach((o,i)=>orderToCol[o]=i);
+  const numCols=sortedOrders.length||1;
+
+  const LABEL_AREA=180;
+  const svgW=Math.max(numCols*(NW+HGAP)-HGAP+MX*2,300)+LABEL_AREA;
+  const svgH=(maxLvl+1)*(NH+VGAP)-VGAP+MY*2+28;
+
+  function getColIndex(n){if(nodeOrder[n]!==undefined)return orderToCol[nodeOrder[n]];return Math.floor(numCols/2);}
+  function getColX(col){return MX+col*(NW+HGAP);}
+
+  const pos=new Map();
+  byLvl.forEach((grp,lvl)=>{
+    const y=MY+lvl*(NH+VGAP);
+    grp.forEach(n=>{
+      const x=getColX(getColIndex(n));
+      pos.set(n,{x,y,cx:x+NW/2,cy:y+NH/2});
+    });
+  });
+
+  const childrenOf=new Map();
+  edges.forEach(e=>{
+    if(e.type!=='sobre')return;
+    const p1=pos.get(e.u1),p2=pos.get(e.u2);
+    if(!p1||!p2||Math.abs(p1.cy-p2.cy)<5)return;
+    if(!childrenOf.has(e.u1))childrenOf.set(e.u1,[]);
+    childrenOf.get(e.u1).push(e.u2);
+  });
+
+  let edgeSVG='',nodeSVG='',labelSVG='',annotSVG='';
+
+  // Phase labels
+  byLvl.forEach((_,lvl)=>{
+    const y=MY+lvl*(NH+VGAP)+NH/2;
+    labelSVG+=`<text x="${MX-20}" y="${y}" text-anchor="end" dominant-baseline="central" font-size="11" fill="${C_TEXT_TERT}" font-weight="500">F${lvl+1}</text>
+    <line x1="${MX-12}" y1="${y}" x2="${MX-4}" y2="${y}" stroke="#333" stroke-width="0.5"/>`;
+  });
+
+  // Contemporaneous
+  edges.filter(e=>e.type==='contemp').forEach(e=>{
+    const p1=pos.get(e.u1),p2=pos.get(e.u2);
+    if(!p1||!p2)return;
+    const lx=Math.min(p1.cx,p2.cx)+NW/2+2,rx=Math.max(p1.cx,p2.cx)-NW/2-2;
+    edgeSVG+=`<line x1="${lx}" y1="${p1.cy}" x2="${rx}" y2="${p2.cy}" stroke="${C_GREEN}" stroke-width="1.5" stroke-dasharray="5 3" fill="none"/>`;
+  });
+
+  // Rail allocator
+  const railsUsed={};
+  function allocRail(leftCol,rightCol){
+    const key=`${Math.min(leftCol,rightCol)}:${Math.max(leftCol,rightCol)}`;
+    if(!railsUsed[key])railsUsed[key]=[];
+    const gapLeft=getColX(Math.min(leftCol,rightCol))+NW;
+    const gapRight=getColX(Math.max(leftCol,rightCol));
+    const center=(gapLeft+gapRight)/2;
+    const RAIL_SPACING=7;
+    const candidates=[center];
+    for(let i=1;i<=4;i++){candidates.push(center+i*RAIL_SPACING);candidates.push(center-i*RAIL_SPACING);}
+    for(const x of candidates){
+      if(!railsUsed[key].some(rx=>Math.abs(rx-x)<RAIL_SPACING-1)){railsUsed[key].push(x);return x;}
+    }
+    const rx=center+railsUsed[key].length*RAIL_SPACING;
+    railsUsed[key].push(rx);
+    return rx;
+  }
+
+  // Draw edges with bus-bar routing
+  childrenOf.forEach((children,parent)=>{
+    const pp=pos.get(parent);if(!pp)return;
+    const tp=getType(parent,explicitType);
+    const vpadP=tp==='corte'?5:0;
+    const yExit=pp.y+NH+vpadP;
+    const parentCol=getColIndex(parent);
+
+    const byChildCol={};
+    children.forEach(c=>{const col=getColIndex(c);if(!byChildCol[col])byChildCol[col]=[];byChildCol[col].push(c);});
+
+    Object.entries(byChildCol).forEach(([colStr,childs])=>{
+      const childCol=parseInt(colStr);
+      childs.sort((a,b)=>nlevel.get(a)-nlevel.get(b));
+
+      if(childCol===parentCol){
+        // Same column: straight line to first (topmost) child only
+        // subsequent children in same col are connected via their own parent edges
+        const topChild=childs[0];
+        const cp=pos.get(topChild);if(!cp)return;
+        const tc=getType(topChild,explicitType);
+        const yEntry=cp.y-(tc==='corte'?5:0);
+        edgeSVG+=`<line x1="${pp.cx}" y1="${yExit}" x2="${pp.cx}" y2="${yEntry-4}"
+          stroke="${C_BLUE}" stroke-width="1.5" marker-end="url(#ab)" fill="none"/>`;
+        return;
+      }
+
+      // Different column: rail routing
+      const leftCol=Math.min(parentCol,childCol);
+      const rightCol=Math.max(parentCol,childCol);
+      const railX=allocRail(leftCol,rightCol);
+
+      const lastChild=childs[childs.length-1];
+      const lcType=getType(lastChild,explicitType);
+      const lastChildTopY=(pos.get(lastChild)||{y:0}).y-(lcType==='corte'?5:0);
+
+      const jogY=yExit+Math.round((VGAP*0.35));
+
+      // Stem down from parent to jog Y
+      edgeSVG+=`<line x1="${pp.cx}" y1="${yExit}" x2="${pp.cx}" y2="${jogY}" stroke="${C_BLUE}" stroke-width="1.5" fill="none"/>`;
+      // Horizontal from parent cx to rail
+      edgeSVG+=`<line x1="${pp.cx}" y1="${jogY}" x2="${railX}" y2="${jogY}" stroke="${C_BLUE}" stroke-width="1.5" fill="none"/>`;
+      // Vertical rail from jog Y down to just above last child top — NO arrow here
+      edgeSVG+=`<line x1="${railX}" y1="${jogY}" x2="${railX}" y2="${lastChildTopY-12}" stroke="${C_BLUE}" stroke-width="1.5" fill="none"/>`;
+
+      // Horizontal stubs + short vertical drop with arrow to each child
+      childs.forEach(child=>{
+        const cp=pos.get(child);if(!cp)return;
+        const tc=getType(child,explicitType);
+        const yEntry=cp.y-(tc==='corte'?5:0);
+        const stubY=yEntry-10;
+        // Horizontal stub from rail to child cx at stubY
+        edgeSVG+=`<line x1="${railX}" y1="${stubY}" x2="${cp.cx}" y2="${stubY}" stroke="${C_BLUE}" stroke-width="1.5" fill="none"/>`;
+        // Short vertical drop with arrowhead
+        edgeSVG+=`<line x1="${cp.cx}" y1="${stubY}" x2="${cp.cx}" y2="${yEntry-4}" stroke="${C_BLUE}" stroke-width="1.5" marker-end="url(#ab)" fill="none"/>`;
+      });
+    });
+  });
+
+  // Nodes on top of edges
+  const sorted=[...nodes].sort((a,b)=>(getType(a,explicitType)==='corte'?1:0)-(getType(b,explicitType)==='corte'?1:0));
+  sorted.forEach(n=>{nodeSVG+=`<g>${nodeShape(n,pos.get(n),getType(n,explicitType))}</g>`;});
+
+  // Annotations
+  const rightmostNodeX=Math.max(...nodes.map(n=>(pos.get(n)||{x:0}).x+NW));
+  const labelX=rightmostNodeX+LABEL_OFFSET+8;
+  nodes.forEach(n=>{
+    const label=nodeLabel[n];if(!label)return;
+    const p=pos.get(n);if(!p)return;
+    const tipo=getType(n,explicitType);
+    const nodeRightX=tipo==='corte'?p.cx+(NW/2+5):p.x+NW;
+    annotSVG+=`<line x1="${nodeRightX+2}" y1="${p.cy}" x2="${labelX-4}" y2="${p.cy}" stroke="#444" stroke-width="0.5" stroke-dasharray="3 2"/>`;
+    annotSVG+=`<text x="${labelX}" y="${p.cy}" dominant-baseline="central" font-size="11" fill="${C_TEXT_SEC}" font-style="italic">${label}</text>`;
+  });
+
+  const svgEl=document.getElementById('matrix-svg');
+  svgEl.setAttribute('viewBox',`0 0 ${svgW} ${svgH}`);
+  svgEl.setAttribute('width',svgW);
+  svgEl.setAttribute('height',svgH);
+  svgEl.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  svgEl.innerHTML=`<rect width="${svgW}" height="${svgH}" fill="${C_BG}"/>
+  <defs>
+    <marker id="ab" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="${C_BLUE}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+  ${labelSVG}${edgeSVG}${nodeSVG}${annotSVG}`;
+
+  document.getElementById('info').textContent=`${nodes.length} UE · ${edges.length} relaciones · ${byLvl.size} fases`;
+}
+
+function exportSVG(){
+  const svgEl=document.getElementById('matrix-svg');
+  const serializer=new XMLSerializer();
+  let src=serializer.serializeToString(svgEl);
+  // Embed font reference
+  src=src.replace('<svg','<svg style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif"');
+  const blob=new Blob([src],{type:'image/svg+xml'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='harris_matrix.svg';
+  a.click();
+}
+
+function exportPNG(){
+  const svgEl=document.getElementById('matrix-svg');
+  const w=parseInt(svgEl.getAttribute('width'));
+  const h=parseInt(svgEl.getAttribute('height'));
+  const serializer=new XMLSerializer();
+  const src=serializer.serializeToString(svgEl);
+  const blob=new Blob([src],{type:'image/svg+xml'});
+  const url=URL.createObjectURL(blob);
+  const img=new Image();
+  img.onload=()=>{
+    const canvas=document.createElement('canvas');
+    canvas.width=w*2; canvas.height=h*2;
+    const ctx=canvas.getContext('2d');
+    ctx.scale(2,2);
+    ctx.drawImage(img,0,0);
+    URL.revokeObjectURL(url);
+    const a=document.createElement('a');
+    a.href=canvas.toDataURL('image/png');
+    a.download='harris_matrix.png';
+    a.click();
+  };
+  img.src=url;
+}
+
+// Auto-generate on load
+window.addEventListener('DOMContentLoaded', build);
+// Auto-regenerate on Ctrl+Enter in textarea
+document.addEventListener('keydown', e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='Enter') build();
+});
+</script>
+</body>
+</html>
