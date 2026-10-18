@@ -21,7 +21,7 @@
     "compression": "maximum",
     "directories": {
       "output": "dist",
-      "buildResources": "assets"
+      "buildResources": "build"
     },
     "files": [
       "main.js",
@@ -34,6 +34,7 @@
      "icon": "build/icon.icns"
     },
     "win": {
+      "icon": "build/icon.ico",
       "target": [
         { "target": "nsis", "arch": ["x64"] }
       ]
