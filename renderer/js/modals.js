@@ -13,8 +13,9 @@ function focusField(id){ refocusWin(); setTimeout(()=>document.getElementById(id
 // the OS dialog system, so the bug can't happen.
 function customConfirm(message){
   return new Promise(resolve=>{
-    const prev=document.getElementById('modal-root').innerHTML;
-    document.getElementById('modal-root').innerHTML=`<div class="modal-bg" style="z-index:300">
+    const host=document.createElement('div');
+    document.body.appendChild(host);
+    host.innerHTML=`<div class="modal-bg" style="z-index:300">
       <div class="modal" style="max-width:400px">
         <p style="font-size:13px;line-height:1.6;margin:4px 0 18px">${esc(message)}</p>
         <div class="modal-actions">
@@ -22,7 +23,7 @@ function customConfirm(message){
           <button class="primary" id="cc-ok">OK</button>
         </div>
       </div></div>`;
-    const cleanup=(val)=>{document.getElementById('modal-root').innerHTML=prev;resolve(val);};
+    const cleanup=(val)=>{host.remove();resolve(val);};
     document.getElementById('cc-ok').onclick=()=>cleanup(true);
     document.getElementById('cc-cancel').onclick=()=>cleanup(false);
     setTimeout(()=>document.getElementById('cc-ok')?.focus(),30);
@@ -78,6 +79,7 @@ function openUEForm(id){
           <input type="hidden" id="f-mn" value="${esc(v.munsell_nombre||'')}">
         </div>
       </div>
+      <div class="opt-section">${editing?`<div id="ue-samples">${ueSamplesHTML(u.id)}</div>`:`<div style="font-size:11px;color:var(--text3)">${t('samples_save_first')}</div>`}</div>
       <div class="modal-actions">
         ${editing?`<button class="danger" onclick="doDelUE('${u.id}')" style="margin-right:auto"><i class="ti ti-trash"></i> ${t('del')}</button>`:''}
         <button onclick="tryClose()">${t('cancel')}</button>
@@ -111,8 +113,10 @@ function saveUE(id){
 }
 async function doDelUE(id){
   const u=ueById(id),rels=DB.relaciones.filter(r=>r.ue1_id===id||r.ue2_id===id).length;
-  const ok=await customConfirm(delUeQ(u.nombre,rels));if(!ok)return;
+  const ns=muestrasOfUE(id).length;
+  const ok=await customConfirm(delUeQ(u.nombre,rels)+(ns?` (+${ns} ${t('samples_s')})`:''));if(!ok)return;
   DB.unidades=DB.unidades.filter(x=>x.id!==id);
+  DB.muestras=DB.muestras.filter(x=>x.ue_id!==id);
   DB.relaciones=DB.relaciones.filter(r=>r.ue1_id!==id&&r.ue2_id!==id);
   saveSnapshot();formDirty=false;closeModal();render();
 }

@@ -106,6 +106,8 @@ function openUEPopup(id){
   if(u.orden)rows.push([t('h_order'),u.orden]);
   const sec=DB.secciones.find(s=>s.id===u.seccion_id);
   if(sec)rows.push([LANG==='es'?'Sección':'Section',sec.nombre]);
+  const ms=muestrasOfUE(id);
+  if(ms.length)rows.push([t('samples'),ms.map(m=>`${m.codigo}: ${fmtBP(m)}${m.cal?' · cal '+m.cal:''}`).join('; ')]);
   const rels=DB.relaciones.filter(r=>(r.ue1_id===id||r.ue2_id===id)&&activeSecUEIds().has(r.ue1_id)&&activeSecUEIds().has(r.ue2_id));
   root.innerHTML=`<div class="modal-bg" onclick="if(event.target===this)closeModal()">
     <div class="modal">

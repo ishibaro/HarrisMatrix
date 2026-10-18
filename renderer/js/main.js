@@ -80,6 +80,7 @@ function render(){
   const secIds=activeSecUEIds();
   document.getElementById('cnt-sec').textContent=DB.secciones.length;
   document.getElementById('cnt-ue').textContent=activeSecUEs().length;
+  document.getElementById('cnt-sam').textContent=activeSecMuestras().length;
   document.getElementById('proj-label').textContent=DB.proyecto.nombre;
   // Diag badge
   const ec=an.errors.length,wc=an.warnings.filter(w=>w.kind!=='redundant'&&w.kind!=='orphan').length;
@@ -87,6 +88,7 @@ function render(){
   // Tab labels
   document.getElementById('tl-sec').textContent=t('tl_sec');
   document.getElementById('tl-ue').textContent=t('tl_ue');
+  document.getElementById('tl-samples').textContent=t('tl_samples');
   document.getElementById('tl-relmat').textContent=t('tl_relmat');
   document.getElementById('tl-map').textContent=t('tl_map');
   document.getElementById('tl-diag').textContent=t('tl_diag');
@@ -94,6 +96,7 @@ function render(){
   // Header
   document.getElementById('ui-title').textContent=t('app_title');
   document.querySelector('#btn-save .btn-lbl').textContent=t('save');
+  document.querySelector('#btn-gpkg .btn-lbl').textContent=t('export_gpkg');
   document.querySelector('#btn-open .btn-lbl').textContent=t('open_file');
   const wsel=document.getElementById('work-lang-select');
   if(wsel)wsel.value=LANG;
@@ -101,6 +104,7 @@ function render(){
   // Pane
   if(currentTab==='secciones')renderSecciones();
   else if(currentTab==='unidades')renderUnidades(an);
+  else if(currentTab==='muestras')renderMuestras();
   else if(currentTab==='relmat')renderRelmat(an);
   else if(currentTab==='mapa')renderMapa();
   else if(currentTab==='diagnostico')renderDiagnostico(an);
@@ -167,10 +171,10 @@ function exportGeoJSON(){
 // ── Project persistence ────────────────────────────────────
 function save(){try{localStorage.setItem('harris-db-v5',JSON.stringify({...DB,_activeSecId:activeSecId}))}catch(e){}}
 function loadDB(){
-  try{const r=localStorage.getItem('harris-db-v5');if(r){const d=JSON.parse(r);DB.proyecto=d.proyecto||DB.proyecto;DB.secciones=d.secciones||[];DB.unidades=d.unidades||[];DB.relaciones=d.relaciones||[];activeSecId=d._activeSecId||DB.secciones[0]?.id||null;return true;}}catch(e){}return false;
+  try{const r=localStorage.getItem('harris-db-v5');if(r){const d=JSON.parse(r);DB.proyecto=d.proyecto||DB.proyecto;DB.secciones=d.secciones||[];DB.unidades=d.unidades||[];DB.muestras=d.muestras||[];DB.relaciones=d.relaciones||[];activeSecId=d._activeSecId||DB.secciones[0]?.id||null;return true;}}catch(e){}return false;
 }
 async function exportProject(){
-  const out={format:'harris-matrix',version:4,exported:new Date().toISOString(),...DB};
+  const out={format:'harris-matrix',version:SCHEMA_VERSION,exported:new Date().toISOString(),...DB};
   const data=JSON.stringify(out,null,2);
   const name=(DB.proyecto.nombre||'proyecto').replace(/[^a-z0-9]/gi,'_').toLowerCase()+'.harris.json';
   if(window.electronAPI){await window.electronAPI.saveFile(data,name);}
@@ -185,10 +189,12 @@ async function importProject(){
   }else{document.getElementById('file-input').click();}
 }
 function _loadProjectData(d){
+  if(d.version>SCHEMA_VERSION)throw new Error(LANG==='es'?`archivo de una versión más nueva (${d.version}); actualiza la aplicación`:`file from a newer version (${d.version}); please update the app`);
   DB.proyecto=d.proyecto||DB.proyecto;
   DB.secciones=d.secciones||d.localizaciones||[];
   DB.unidades=d.unidades||[];DB.relaciones=d.relaciones||[];
   DB.unidades.forEach(u=>{if(u.localizacion_id&&!u.seccion_id){u.seccion_id=u.localizacion_id;delete u.localizacion_id;}});
+  DB.muestras=(d.muestras||[]).filter(m=>m&&m.ue_id&&ueById(m.ue_id)); // v4/v5 files have none
   activeSecId=DB.secciones[0]?.id||null;
   saveSnapshot();
 }
@@ -204,7 +210,7 @@ async function newProject(){
     if(!ok)return false;
   }
   DB.proyecto={id:uuid(),nombre:t('untitled'),director:'',temporada:'',fecha:''};
-  DB.secciones=[];DB.unidades=[];DB.relaciones=[];activeSecId=null;
+  DB.secciones=[];DB.unidades=[];DB.muestras=[];DB.relaciones=[];activeSecId=null;
   _undoHist=[];_undoIdx=-1; // reset history on new project
   return true;
 }
@@ -229,7 +235,7 @@ function loadSampleFallback(){
   const pid=uuid(),secId=uuid();
   DB.proyecto={id:pid,nombre:LANG==='es'?'Ejemplo — muro romano':'Example — Roman wall',director:'',temporada:'2026',fecha:''};
   DB.secciones=[{id:secId,proyecto_id:pid,nombre:LANG==='es'?'Sección A':'Section A',lat:'54.99171218',lon:'-2.36090826',notes:''}];
-  DB.unidades=[];DB.relaciones=[];activeSecId=secId;
+  DB.unidades=[];DB.muestras=[];DB.relaciones=[];activeSecId=secId;
   const defs=[
     ['400','Estrato','2','Topsoil','10YR 3/2'],['402','Estrato','2','',''],
     ['403','Estrato','1','',''],['404','Estrato','3','',''],
@@ -260,7 +266,7 @@ document.addEventListener('keydown',e=>{
   if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();if(appState==='work')exportProject();}
   if((e.ctrlKey||e.metaKey)&&e.key==='z'&&!e.shiftKey){e.preventDefault();undo();}
   if((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))){e.preventDefault();redo();}
-  if(e.key==='Escape'){const m=document.getElementById('modal-root');if(m&&m.innerHTML)closeModal();}
+  if(e.key==='Escape'){const m2=document.getElementById('modal-root-2');if(m2&&m2.innerHTML){tryCloseSample();return;}const m=document.getElementById('modal-root');if(m&&m.innerHTML)closeModal();}
 });
 // Electron menu actions
 if(window.electronAPI){

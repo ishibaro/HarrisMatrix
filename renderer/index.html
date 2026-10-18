@@ -53,6 +53,7 @@
     <div class="hdr-sep"></div>
     <div id="sec-selector-area"></div>
     <div class="hdr-right">
+      <button onclick="exportGPKG()" id="btn-gpkg" class="sm"><i class="ti ti-database-export"></i> <span class="btn-lbl">GPKG</span></button>
       <button onclick="exportProject()" id="btn-save" class="sm"><i class="ti ti-download"></i> <span class="btn-lbl">Guardar</span></button>
       <button onclick="importProject()" id="btn-open" class="sm"><i class="ti ti-upload"></i> <span class="btn-lbl">Abrir</span></button>
       <input type="file" id="file-input" accept=".json,.harris" style="display:none" onchange="onFileLoad(this)">
@@ -66,6 +67,7 @@
   <div class="tabs">
     <button class="tab active" data-tab="secciones" onclick="switchTab('secciones')"><i class="ti ti-layers-subtract"></i> <span class="tl" id="tl-sec">Secciones</span> <span class="cnt" id="cnt-sec">0</span></button>
     <button class="tab" data-tab="unidades" onclick="switchTab('unidades')"><i class="ti ti-stack-2"></i> <span class="tl" id="tl-ue">UdE</span> <span class="cnt" id="cnt-ue">0</span></button>
+    <button class="tab" data-tab="muestras" onclick="switchTab('muestras')"><i class="ti ti-flask"></i> <span class="tl" id="tl-samples">Muestras</span> <span class="cnt" id="cnt-sam">0</span></button>
     <button class="tab" data-tab="relmat" onclick="switchTab('relmat')"><i class="ti ti-binary-tree"></i> <span class="tl" id="tl-relmat">Relaciones / Matriz</span></button>
     <button class="tab" data-tab="mapa" onclick="switchTab('mapa')"><i class="ti ti-map"></i> <span class="tl" id="tl-map">Mapa</span></button>
     <button class="tab" data-tab="diagnostico" onclick="switchTab('diagnostico')"><i class="ti ti-stethoscope"></i> <span class="tl" id="tl-diag">Diagnóstico</span> <span id="diag-badge"></span></button>
@@ -75,6 +77,7 @@
   <div class="main">
     <div class="pane active" id="pane-secciones"></div>
     <div class="pane" id="pane-unidades"></div>
+    <div class="pane" id="pane-muestras"></div>
     <div class="pane" id="pane-relmat"></div>
     <div class="pane map-pane" id="pane-mapa"><div id="map-div"></div></div>
     <div class="pane" id="pane-diagnostico"></div>
@@ -83,6 +86,7 @@
 </div>
 
 <div id="modal-root"></div>
+<div id="modal-root-2"></div>
 
 <script src="js/munsell-data.js"></script>
 <script src="js/i18n.js"></script>
@@ -90,6 +94,9 @@
 <script src="js/matrix.js"></script>
 <script src="js/views.js"></script>
 <script src="js/modals.js"></script>
+<script src="js/samples.js"></script>
+<script src="vendor/sql-wasm-inline.js"></script>
+<script src="js/gpkg.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

@@ -1,7 +1,8 @@
 
 function uuid(){if(crypto.randomUUID)return crypto.randomUUID();return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0,v=c==='x'?r:(r&0x3|0x8);return v.toString(16)});}
 
-const DB={proyecto:{id:uuid(),nombre:'Proyecto sin título',director:'',temporada:'',fecha:''},secciones:[],unidades:[],relaciones:[]};
+const SCHEMA_VERSION=6;
+const DB={proyecto:{id:uuid(),nombre:'Proyecto sin título',director:'',temporada:'',fecha:''},secciones:[],unidades:[],muestras:[],relaciones:[]};
 let activeSecId=null;
 
 // ── Accessors ──────────────────────────────────────────────
@@ -11,6 +12,30 @@ function ueName(id){const u=ueById(id);return u?u.nombre:'?'}
 function ueByNameInSec(name,secId){return DB.unidades.find(u=>u.nombre===name&&u.seccion_id===secId)}
 function activeSecUEs(){return DB.unidades.filter(u=>u.seccion_id===activeSecId)}
 function activeSecUEIds(){return new Set(activeSecUEs().map(u=>u.id))}
+
+// ── Muestras (samples) ─────────────────────────────────────
+// A sample belongs to exactly one UE (ue_id). Its display ID is
+// "section:UE:code", computed — the UUID is the real link.
+function muestrasOfUE(ueId){return DB.muestras.filter(m=>m.ue_id===ueId)}
+function muestraById(id){return DB.muestras.find(m=>m.id===id)}
+function activeSecMuestras(){const ids=activeSecUEIds();return DB.muestras.filter(m=>ids.has(m.ue_id))}
+function muestraLabel(m){const u=ueById(m.ue_id),s=u?secById(u.seccion_id):null;return[(s?s.nombre:'?'),(u?u.nombre:'?'),(m.codigo||'?')].join(':')}
+function nextMuestraCode(ueId){const used=new Set(muestrasOfUE(ueId).map(m=>String(m.codigo)));let n=used.size+1;while(used.has(String(n)))n++;return String(n)}
+// '' → null · '45' / '45,5' → number · garbage → NaN
+function parseNum(v){if(v===''||v==null)return null;const n=Number(String(v).trim().replace(',','.'));return isFinite(n)?n:NaN}
+// Nominal equivalents of an UNCALIBRATED radiocarbon age. Approximate by
+// design: calibration shifts real dates by centuries. Astronomical year
+// numbering (year 0 exists): 1950 BP = 1 BCE. Hijri years are lunar, so
+// HE = (G - 622) x 33/32 is only an approximation; before the Hijra → BH.
+function nominalDates(bp){
+  if(bp==null||Number.isNaN(bp))return null;
+  const y=Math.round(1950-bp);
+  const greg=y>=1?`${y} CE`:`${1-y} BCE`;
+  const h=(y-622)*33/32;
+  const he=h>=1?`${Math.round(h)} HE`:`${Math.round(1-h)} BH`;
+  return{greg,he};
+}
+function nominalText(bp){const d=nominalDates(bp);return d?`≈ ${d.greg} · ≈ ${d.he}`:''}
 
 function ensureUE(nombre,defaults={}){
   nombre=(nombre||'').trim();if(!nombre)return null;
@@ -152,7 +177,7 @@ function redo(){
 function _applySnap(){
   const s=JSON.parse(_undoHist[_undoIdx]);
   DB.proyecto=s.proyecto;DB.secciones=s.secciones;
-  DB.unidades=s.unidades;DB.relaciones=s.relaciones;
+  DB.unidades=s.unidades;DB.muestras=s.muestras||[];DB.relaciones=s.relaciones;
   activeSecId=s._sid||DB.secciones[0]?.id||null;
   _undoing=true;render();_undoing=false;
 }

@@ -5,6 +5,24 @@ Licencia: GNU General Public License v3 — https://www.gnu.org/licenses/
 
 ---
 
+## [0.6] — en desarrollo (rama v0.6-gpkg)
+
+### Nuevo
+- **Muestras**: nueva tabla vinculada a cada UE (código propio, C14 BP, error,
+  calibrada, fecha relativa, material, x/y/z libres). Pestaña "Muestras" y botón
+  para añadirlas desde las propiedades de la UE.
+- Fechas nominales (CE/BCE y HE/BH) de solo lectura, marcadas como
+  "nominal, sin calibrar, aproximada".
+- **Exportar a GeoPackage (.gpkg)**: botón "GPKG" a la izquierda de "Guardar".
+  Tablas: proyecto, unidades_excavacion, ue, muestras, relaciones y puntos
+  (única con geometría, EPSG:4326). Usa sql.js incluido; funciona sin internet.
+- Formato de archivo .harris.json versión 6 (abre archivos de versiones anteriores).
+
+### Corregido
+- Al cancelar el aviso de "descartar cambios" ya no se pierde lo escrito en el formulario.
+
+---
+
 ## [0.5] — 2026-07-10
 
 Primera versión candidata a release público. Reestructuración completa a
