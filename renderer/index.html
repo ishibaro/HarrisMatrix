@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matriz de Harris</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.35.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<!-- ── Home screen ── -->
+<div id="home-screen" class="active">
+  <img src="img/logo.svg" class="home-logo-img" alt="" onerror="this.style.display='none'">
+  <div class="home-logo">Matriz de Harris</div>
+  <div class="home-sub" id="home-sub">editor estratigráfico · v0.5</div>
+  <div class="home-cards">
+    <div class="home-card" onclick="startNewProjectFlow()">
+      <i class="ti ti-folder-plus card-icon"></i>
+      <div class="card-title" id="hc-new">Nuevo proyecto</div>
+      <div class="card-desc" id="hc-new-d">Crea un proyecto, define una sección y comienza a registrar unidades.</div>
+    </div>
+    <div class="home-card" onclick="importProject()">
+      <i class="ti ti-folder-open card-icon"></i>
+      <div class="card-title" id="hc-open">Abrir proyecto</div>
+      <div class="card-desc" id="hc-open-d">Abre un archivo .harris.json guardado previamente.</div>
+    </div>
+    <div class="home-card" onclick="openExample()">
+      <i class="ti ti-eye card-icon"></i>
+      <div class="card-title" id="hc-ex">Ver ejemplo</div>
+      <div class="card-desc" id="hc-ex-d">Explora el ejemplo incluido: Figura 12 del libro de Harris.</div>
+    </div>
+    <div class="home-card" onclick="leaveHome();switchTab('help')">
+      <i class="ti ti-license card-icon"></i>
+      <div class="card-title" id="hc-help">Ayuda</div>
+      <div class="card-desc" id="hc-help-d">Documentación, teoría de grafos y referencia rápida.</div>
+    </div>
+  </div>
+  <div class="home-footer" id="home-footer">«Gestor de Matrices de Harris» Copyright (C) 2026 iRO · GPL v3</div>
+  <div style="display:flex;gap:10px;align-items:center;margin-top:16px">
+    <select class="lang-select" id="home-lang-select" onchange="setLang(this.value)"></select>
+    <button onclick="toggleTheme()" class="icon sm" id="home-theme-btn"><i class="ti ti-moon" id="home-theme-icon2"></i></button>
+  </div>
+</div>
+
+<!-- ── Work area ── -->
+<div id="work-area" style="display:none;flex:1;flex-direction:column;overflow:hidden">
+  <header>
+    <span class="brand" id="ui-title">Matriz de Harris</span>
+    <div class="hdr-sep"></div>
+    <span class="pill-btn" onclick="openProject()" id="proj-btn"><i class="ti ti-folder"></i> <span id="proj-label">Proyecto</span></span>
+    <div class="hdr-sep"></div>
+    <div id="sec-selector-area"></div>
+    <div class="hdr-right">
+      <button onclick="exportProject()" id="btn-save" class="sm"><i class="ti ti-download"></i> <span class="btn-lbl">Guardar</span></button>
+      <button onclick="importProject()" id="btn-open" class="sm"><i class="ti ti-upload"></i> <span class="btn-lbl">Abrir</span></button>
+      <input type="file" id="file-input" accept=".json,.harris" style="display:none" onchange="onFileLoad(this)">
+      <button onclick="goHome()" id="btn-home" class="icon sm" title="Home"><i class="ti ti-home"></i></button>
+      <select class="lang-select" id="work-lang-select" onchange="setLang(this.value)"></select>
+      <button onclick="toggleTheme()" id="btn-theme" class="icon sm"><i class="ti ti-moon" id="theme-icon"></i></button>
+      <button onclick="openRefs()" class="icon sm"><i class="ti ti-license"></i></button>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="secciones" onclick="switchTab('secciones')"><i class="ti ti-layers-subtract"></i> <span class="tl" id="tl-sec">Secciones</span> <span class="cnt" id="cnt-sec">0</span></button>
+    <button class="tab" data-tab="unidades" onclick="switchTab('unidades')"><i class="ti ti-stack-2"></i> <span class="tl" id="tl-ue">UdE</span> <span class="cnt" id="cnt-ue">0</span></button>
+    <button class="tab" data-tab="relmat" onclick="switchTab('relmat')"><i class="ti ti-binary-tree"></i> <span class="tl" id="tl-relmat">Relaciones / Matriz</span></button>
+    <button class="tab" data-tab="mapa" onclick="switchTab('mapa')"><i class="ti ti-map"></i> <span class="tl" id="tl-map">Mapa</span></button>
+    <button class="tab" data-tab="diagnostico" onclick="switchTab('diagnostico')"><i class="ti ti-stethoscope"></i> <span class="tl" id="tl-diag">Diagnóstico</span> <span id="diag-badge"></span></button>
+    <button class="tab" data-tab="help" onclick="switchTab('help')"><i class="ti ti-help-circle"></i> <span class="tl" id="tl-help">Ayuda</span></button>
+  </div>
+
+  <div class="main">
+    <div class="pane active" id="pane-secciones"></div>
+    <div class="pane" id="pane-unidades"></div>
+    <div class="pane" id="pane-relmat"></div>
+    <div class="pane map-pane" id="pane-mapa"><div id="map-div"></div></div>
+    <div class="pane" id="pane-diagnostico"></div>
+    <div class="pane" id="pane-help"></div>
+  </div>
+</div>
+
+<div id="modal-root"></div>
+
+<script src="js/munsell-data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/data.js"></script>
+<script src="js/matrix.js"></script>
+<script src="js/views.js"></script>
+<script src="js/modals.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

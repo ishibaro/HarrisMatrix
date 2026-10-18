@@ -1,0 +1,244 @@
+{
+  "format": "harris-matrix",
+  "version": 4,
+  "exported": "2026-07-09T16:03:20.120Z",
+  "proyecto": {
+    "id": "61c8ebec-4f22-4028-9ba6-ea490622dbdf",
+    "nombre": "Harris Matrix textbook",
+    "director": "Harris/iRO",
+    "temporada": "2026",
+    "fecha": ""
+  },
+  "secciones": [
+    {
+      "id": "df7a3c2a-47f0-4866-967a-a00d1fb0fe0f",
+      "proyecto_id": "61c8ebec-4f22-4028-9ba6-ea490622dbdf",
+      "nombre": "Figura 12",
+      "lat": "",
+      "lon": "",
+      "notes": ""
+    }
+  ],
+  "unidades": [
+    {
+      "id": "1fa1b622-25a1-45f1-9f39-98f414571860",
+      "seccion_id": "df7a3c2a-47f0-4866-967a-a00d1fb0fe0f",
+      "nombre": "Natural Ground",
+      "tipo": "Roca madre",
+      "etiqueta": "Bedrock",
+      "orden": "2",
+      "descripcion": "",
+      "munsell": "",
+      "munsell_nombre": "",
+      "color": "#3a3a08",
+      "composicion": "Otra",
+      "inclusiones": ""
+    },
+    {
+      "id": "5b78f153-99f0-4367-9536-150376526be3",
+      "seccion_id": "df7a3c2a-47f0-4866-967a-a00d1fb0fe0f",
+      "nombre": "9",
+      "tipo": "Estrato",
+      "etiqueta": "",
+      "orden": "2",
+      "descripcion": "",
+      "munsell": "",
+      "munsell_nombre": "",
+      "color": "",
+      "composicion": "",
+      "inclusiones": ""
+    },
+    {
+      "id": "92e1a59c-87de-43c1-a921-db86f2b8473a",
+      "seccion_id": "df7a3c2a-47f0-4866-967a-a00d1fb0fe0f",
+      "nombre": "7",
+      "tipo": "Estrato",
+      "etiqueta": "",
+      "orden": "1",
+      "descripcion": "",
+      "munsell": "",
+      "munsell_nombre": "",
+      "color": "",
+      "composicion": "",
+      "inclusiones": ""
+    },
+    {
+      "id": "52c3ba18-3014-4556-a0dd-d121907302c0",
+      "seccion_id": "df7a3c2a-47f0-4866-967a-a00d1fb0fe0f",
+      "nombre": "8",
+      "tipo": "Estrato",
+      "etiqueta": "",
+      "orden": "3",
+      "descripcion": "",
+      "munsell": "",
+      "munsell_nombre": "",
+      "color": "",
+      "composicion": "",
+      "inclusiones": ""
+    },
+    {
+      "id": "d07ddb36-80b5-4ec9-be23-a0441713a954",
+      "seccion_id": "df7a3c2a-47f0-4866-967a-a00d1fb0fe0f",
+      "nombre": "6",
+      "tipo": "Corte",
+      "etiqueta": "Foundation trench",
+      "orden": "2",
+      "descripcion": "",
+      "munsell": "",
+      "munsell_nombre": "",
+      "color": "",
+      "composicion": "",
+      "inclusiones": ""
+    },
+    {
+      "id": "5d1eedbd-e105-43f7-a75c-a2a679884e49",
+      "seccion_id": "df7a3c2a-47f0-4866-967a-a00d1fb0fe0f",
+      "nombre": "5",
+      "tipo": "Estrato",
+      "orden": "",
+      "etiqueta": "",
+      "descripcion": "",
+      "munsell": "",
+      "munsell_nombre": "",
+      "color": "",
+      "composicion": "",
+      "inclusiones": ""
+    },
+    {
+      "id": "e7b5d2d7-6b49-4719-a5d3-952ee55b96cd",
+      "seccion_id": "df7a3c2a-47f0-4866-967a-a00d1fb0fe0f",
+      "nombre": "2",
+      "tipo": "Estrato",
+      "orden": "",
+      "etiqueta": "",
+      "descripcion": "",
+      "munsell": "",
+      "munsell_nombre": "",
+      "color": "",
+      "composicion": "",
+      "inclusiones": ""
+    },
+    {
+      "id": "8742bca2-9359-4a82-b139-43d225e08053",
+      "seccion_id": "df7a3c2a-47f0-4866-967a-a00d1fb0fe0f",
+      "nombre": "1",
+      "tipo": "Estrato",
+      "orden": "",
+      "etiqueta": "",
+      "descripcion": "",
+      "munsell": "",
+      "munsell_nombre": "",
+      "color": "",
+      "composicion": "",
+      "inclusiones": ""
+    },
+    {
+      "id": "1c18b728-6818-44ae-9008-35c472220874",
+      "seccion_id": "df7a3c2a-47f0-4866-967a-a00d1fb0fe0f",
+      "nombre": "3",
+      "tipo": "Estrato",
+      "orden": "1",
+      "etiqueta": "",
+      "descripcion": "",
+      "munsell": "",
+      "munsell_nombre": "",
+      "color": "",
+      "composicion": "",
+      "inclusiones": ""
+    },
+    {
+      "id": "5614901b-d35c-48ed-aa72-11fde68cd419",
+      "seccion_id": "df7a3c2a-47f0-4866-967a-a00d1fb0fe0f",
+      "nombre": "4",
+      "tipo": "Estrato",
+      "orden": "3",
+      "etiqueta": "",
+      "descripcion": "",
+      "munsell": "",
+      "munsell_nombre": "",
+      "color": "",
+      "composicion": "",
+      "inclusiones": ""
+    }
+  ],
+  "relaciones": [
+    {
+      "id": "ee034a44-5754-482b-ad97-2be1c1288b46",
+      "ue1_id": "1fa1b622-25a1-45f1-9f39-98f414571860",
+      "tipo": "Anterior a",
+      "ue2_id": "5b78f153-99f0-4367-9536-150376526be3"
+    },
+    {
+      "id": "ba4ee24d-ef54-4357-bc97-d97ed465000e",
+      "ue1_id": "d07ddb36-80b5-4ec9-be23-a0441713a954",
+      "tipo": "Sobre",
+      "ue2_id": "92e1a59c-87de-43c1-a921-db86f2b8473a"
+    },
+    {
+      "id": "44750ce3-d030-4834-8feb-982f0cb2a6a6",
+      "ue1_id": "d07ddb36-80b5-4ec9-be23-a0441713a954",
+      "tipo": "Sobre",
+      "ue2_id": "52c3ba18-3014-4556-a0dd-d121907302c0"
+    },
+    {
+      "id": "00488780-aa5f-4591-b2a9-4257de4e918e",
+      "ue1_id": "92e1a59c-87de-43c1-a921-db86f2b8473a",
+      "tipo": "Sobre",
+      "ue2_id": "5b78f153-99f0-4367-9536-150376526be3"
+    },
+    {
+      "id": "af6f3a5d-5531-48ca-81bf-7ad9d6aab341",
+      "ue1_id": "52c3ba18-3014-4556-a0dd-d121907302c0",
+      "tipo": "Sobre",
+      "ue2_id": "5b78f153-99f0-4367-9536-150376526be3"
+    },
+    {
+      "id": "ef5b553f-3d37-409c-893f-988b75f70e84",
+      "ue1_id": "92e1a59c-87de-43c1-a921-db86f2b8473a",
+      "tipo": "Contemporánea",
+      "ue2_id": "52c3ba18-3014-4556-a0dd-d121907302c0"
+    },
+    {
+      "id": "bd57f8ff-3ffe-4384-8086-b0da69eba3d9",
+      "ue1_id": "5d1eedbd-e105-43f7-a75c-a2a679884e49",
+      "tipo": "Sobre",
+      "ue2_id": "d07ddb36-80b5-4ec9-be23-a0441713a954"
+    },
+    {
+      "id": "fd39d836-3899-4923-9aae-88d24ac2fbed",
+      "ue1_id": "e7b5d2d7-6b49-4719-a5d3-952ee55b96cd",
+      "tipo": "Sobre",
+      "ue2_id": "5d1eedbd-e105-43f7-a75c-a2a679884e49"
+    },
+    {
+      "id": "e2bb221b-0750-4d5e-8d0b-a91c1f92aef4",
+      "ue1_id": "8742bca2-9359-4a82-b139-43d225e08053",
+      "tipo": "Sobre",
+      "ue2_id": "e7b5d2d7-6b49-4719-a5d3-952ee55b96cd"
+    },
+    {
+      "id": "90bab290-4300-4100-aec9-f595af83da8a",
+      "ue1_id": "1c18b728-6818-44ae-9008-35c472220874",
+      "tipo": "Sobre",
+      "ue2_id": "5d1eedbd-e105-43f7-a75c-a2a679884e49"
+    },
+    {
+      "id": "a4956cc1-22b8-49c6-ad08-56d830612fdd",
+      "ue1_id": "5614901b-d35c-48ed-aa72-11fde68cd419",
+      "tipo": "Sobre",
+      "ue2_id": "5d1eedbd-e105-43f7-a75c-a2a679884e49"
+    },
+    {
+      "id": "8c6a6f46-eda1-48c8-84c3-8b02458b737c",
+      "ue1_id": "8742bca2-9359-4a82-b139-43d225e08053",
+      "tipo": "Sobre",
+      "ue2_id": "1c18b728-6818-44ae-9008-35c472220874"
+    },
+    {
+      "id": "3aca0cc4-3189-4a58-af5f-cc010a163a94",
+      "ue1_id": "8742bca2-9359-4a82-b139-43d225e08053",
+      "tipo": "Sobre",
+      "ue2_id": "5614901b-d35c-48ed-aa72-11fde68cd419"
+    }
+  ]
+}
