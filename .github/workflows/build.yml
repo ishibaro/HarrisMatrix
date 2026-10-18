@@ -1,0 +1,39 @@
+name: Build installers
+
+on:
+  workflow_dispatch:        # botón "Run workflow" en la pestaña Actions
+  push:
+    tags:
+      - 'v*'                # también se ejecuta al subir una etiqueta, p. ej. v0.5.0
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build (sin firmar, sin publicar)
+        run: npx electron-builder --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false   # Mac: no buscar certificado de firma
+
+      - name: Guardar instaladores
+        uses: actions/upload-artifact@v4
+        with:
+          name: instalador-${{ matrix.os }}
+          path: |
+            dist/*.exe
+            dist/*.dmg
+          if-no-files-found: error
