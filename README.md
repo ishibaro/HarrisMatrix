@@ -4,7 +4,7 @@
 
 *Version 0.5 · [Versión en español](#español)*
 
-[Screenshot](docs/screenshot.png)
+![Screenshot](docs/screenshot.png)
 
 ## What is it?
 
