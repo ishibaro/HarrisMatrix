@@ -63,7 +63,7 @@ async function buildGPKG(data){
     nombre TEXT, lat REAL, lon REAL, notas TEXT)`);
   run(`CREATE TABLE ue(
     id TEXT PRIMARY KEY, unidad_excavacion_id TEXT REFERENCES unidades_excavacion(id),
-    nombre TEXT, tipo TEXT, orden TEXT, etiqueta TEXT, descripcion TEXT,
+    nombre TEXT, tipo TEXT, etiqueta TEXT, descripcion TEXT,
     munsell TEXT, munsell_nombre TEXT, color TEXT, composicion TEXT, inclusiones TEXT)`);
   run(`CREATE TABLE muestras(
     id TEXT PRIMARY KEY, ue_id TEXT NOT NULL REFERENCES ue(id),
@@ -87,8 +87,8 @@ async function buildGPKG(data){
       minx=Math.min(minx,lon);maxx=Math.max(maxx,lon);miny=Math.min(miny,lat);maxy=Math.max(maxy,lat);
     }
   });
-  (data.unidades||[]).forEach(u=>run('INSERT INTO ue VALUES(?,?,?,?,?,?,?,?,?,?,?,?)',
-    [u.id,u.seccion_id,u.nombre||'',u.tipo||'',u.orden||'',u.etiqueta||'',u.descripcion||'',u.munsell||'',u.munsell_nombre||'',u.color||'',u.composicion||'',u.inclusiones||'']));
+  (data.unidades||[]).forEach(u=>run('INSERT INTO ue VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+    [u.id,u.seccion_id,u.nombre||'',u.tipo||'',u.etiqueta||'',u.descripcion||'',u.munsell||'',u.munsell_nombre||'',u.color||'',u.composicion||'',u.inclusiones||'']));
   (data.muestras||[]).forEach(m=>{
     const bp=numOrNull(m.bp);
     run('INSERT INTO muestras VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',

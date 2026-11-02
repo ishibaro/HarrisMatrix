@@ -14,7 +14,7 @@
 <div id="home-screen" class="active">
   <img src="img/logo.svg" class="home-logo-img" alt="" onerror="this.style.display='none'">
   <div class="home-logo">Matriz de Harris</div>
-  <div class="home-sub" id="home-sub">editor estratigráfico · v0.5</div>
+  <div class="home-sub" id="home-sub">editor estratigráfico · v0.6.2</div>
   <div class="home-cards">
     <div class="home-card" onclick="startNewProjectFlow()">
       <i class="ti ti-folder-plus card-icon"></i>
@@ -29,7 +29,7 @@
     <div class="home-card" onclick="openExample()">
       <i class="ti ti-eye card-icon"></i>
       <div class="card-title" id="hc-ex">Ver ejemplo</div>
-      <div class="card-desc" id="hc-ex-d">Explora el ejemplo incluido: Figura 12 del libro de Harris.</div>
+      <div class="card-desc" id="hc-ex-d">Explora el ejemplo incluido: la Figura 12 de Harris y otros casos para probar todas las funciones.</div>
     </div>
     <div class="home-card" onclick="leaveHome();switchTab('help')">
       <i class="ti ti-license card-icon"></i>
@@ -95,6 +95,7 @@
 <script src="js/views.js"></script>
 <script src="js/modals.js"></script>
 <script src="js/samples.js"></script>
+<script src="js/position.js"></script>
 <script src="vendor/sql-wasm-inline.js"></script>
 <script src="js/gpkg.js"></script>
 <script src="js/main.js"></script>

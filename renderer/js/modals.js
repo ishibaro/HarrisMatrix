@@ -33,7 +33,7 @@ function customConfirm(message){
 function openUEForm(id){
   if(!activeSecId)return;
   const u=id?ueById(id):null,editing=!!u;
-  const v=u||{nombre:'',tipo:'Estrato',orden:'',etiqueta:'',descripcion:'',munsell:'',munsell_nombre:'',color:'',composicion:'',inclusiones:''};
+  const v=u||{nombre:'',tipo:'Estrato',orden:'',pos_modo:'',pos_a:'',pos_b:'',etiqueta:'',descripcion:'',munsell:'',munsell_nombre:'',color:'',composicion:'',inclusiones:''};
   showOptFields=editing&&!!(v.descripcion||v.munsell||v.color||v.composicion||v.inclusiones);
   formDirty=false;
   const cl=COMPOSICIONES.map((c,i)=>({val:c,lbl:compLabel(c,i)}));
@@ -48,12 +48,9 @@ function openUEForm(id){
             ${TIPOS_ES.map(tp=>`<option value="${tp}"${tp===v.tipo?' selected':''}>${typeLabel(tp)}</option>`).join('')}
           </select></label>
       </div>
-      <div class="grid2">
-        <label class="field"><span class="lbl">${t('label')} <span class="opt">(${t('opt')})</span></span>
-          <input id="f-etq" value="${esc(v.etiqueta)}" placeholder="Topsoil" oninput="markDirty()"></label>
-        <label class="field"><span class="lbl">${t('h_order')} <span class="opt">(${t('opt')})</span></span>
-          <input id="f-ord" value="${esc(v.orden)}" placeholder="${t('order_hint')}" inputmode="numeric" oninput="markDirty()"></label>
-      </div>
+      <label class="field"><span class="lbl">${t('label')} <span class="opt">(${t('opt')})</span></span>
+        <input id="f-etq" value="${esc(v.etiqueta)}" placeholder="Topsoil" oninput="markDirty()"></label>
+      ${uePosHTML(id,v)}
       <div class="opt-section">
         <span class="opt-toggle" onclick="toggleOpt()"><i class="ti ti-chevron-${showOptFields?'down':'right'}" id="oc"></i> ${t('opt_fields')}</span>
         <div id="of" style="display:${showOptFields?'block':'none'}">
@@ -106,7 +103,7 @@ function saveUE(id){
   const colorVal=document.getElementById('f-col')?.value||'#888880';
   const mun=(document.getElementById('f-mun')?.value||'').trim();
   const useColor=showOptFields&&(mun||colorVal!=='#888880');
-  const data={nombre,tipo:document.getElementById('f-tip').value,etiqueta:(document.getElementById('f-etq').value||'').trim(),orden:(document.getElementById('f-ord').value||'').trim(),descripcion:(document.getElementById('f-des')?.value||'').trim(),munsell:mun,munsell_nombre:(document.getElementById('f-mn')?.value||''),color:useColor?colorVal:(id?ueById(id)?.color||'':''),composicion:(document.getElementById('f-com')?.value||''),inclusiones:(document.getElementById('f-inc')?.value||'').trim()};
+  const data={nombre,tipo:document.getElementById('f-tip').value,etiqueta:(document.getElementById('f-etq').value||'').trim(),...readPos(),descripcion:(document.getElementById('f-des')?.value||'').trim(),munsell:mun,munsell_nombre:(document.getElementById('f-mn')?.value||''),color:useColor?colorVal:(id?ueById(id)?.color||'':''),composicion:(document.getElementById('f-com')?.value||''),inclusiones:(document.getElementById('f-inc')?.value||'').trim()};
   if(id)Object.assign(ueById(id),data);
   else DB.unidades.push({id:uuid(),seccion_id:activeSecId,...data});
   saveSnapshot();formDirty=false;closeModal();render();
@@ -116,6 +113,7 @@ async function doDelUE(id){
   const ns=muestrasOfUE(id).length;
   const ok=await customConfirm(delUeQ(u.nombre,rels)+(ns?` (+${ns} ${t('samples_s')})`:''));if(!ok)return;
   DB.unidades=DB.unidades.filter(x=>x.id!==id);
+  DB.unidades.forEach(x=>{if(x.pos_a===id||x.pos_b===id){x.pos_modo='';x.pos_a='';x.pos_b='';}});
   DB.muestras=DB.muestras.filter(x=>x.ue_id!==id);
   DB.relaciones=DB.relaciones.filter(r=>r.ue1_id!==id&&r.ue2_id!==id);
   saveSnapshot();formDirty=false;closeModal();render();

@@ -22,7 +22,7 @@ async function openExample(){
 }
 async function fetchExample(){
   try{
-    const res=await fetch('data/figura_12.harris.json');
+    const res=await fetch('data/ejemplo.harris.json');
     const d=await res.json();
     _loadProjectData(d);
     return true;
@@ -118,7 +118,7 @@ function renderHomeLabels(){
   const hti=document.getElementById('home-theme-icon2');
   const thm=document.documentElement.getAttribute('data-theme');
   if(hti)hti.className=thm==='dark'?'ti ti-moon':'ti ti-sun';
-  document.getElementById('home-sub').textContent=LANG==='es'?'editor estratigráfico · v0.5':'stratigraphic editor · v0.5';
+  document.getElementById('home-sub').textContent=LANG==='es'?'editor estratigráfico · v0.6.2':'stratigraphic editor · v0.6.2';
   document.getElementById('hc-new').textContent=t('hc_new');
   document.getElementById('hc-new-d').textContent=t('hc_new_d');
   document.getElementById('hc-open').textContent=t('hc_open');

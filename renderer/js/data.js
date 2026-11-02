@@ -40,7 +40,7 @@ function nominalText(bp){const d=nominalDates(bp);return d?`≈ ${d.greg} · ≈
 function ensureUE(nombre,defaults={}){
   nombre=(nombre||'').trim();if(!nombre)return null;
   let u=ueByNameInSec(nombre,activeSecId);
-  if(!u){u={id:uuid(),seccion_id:activeSecId,nombre,tipo:'Estrato',orden:'',etiqueta:'',descripcion:'',munsell:'',munsell_nombre:'',color:'',composicion:'',inclusiones:'',...defaults};DB.unidades.push(u);}
+  if(!u){u={id:uuid(),seccion_id:activeSecId,nombre,tipo:'Estrato',orden:'',pos_modo:'',pos_a:'',pos_b:'',etiqueta:'',descripcion:'',munsell:'',munsell_nombre:'',color:'',composicion:'',inclusiones:'',...defaults};DB.unidades.push(u);}
   return u;
 }
 
@@ -66,7 +66,7 @@ const REL_MAP={sobre:'sobre',corta:'sobre',encima:'sobre',interfaz:'sobre',conte
 // ── Analyze ────────────────────────────────────────────────
 function analyze(){
   const errors=[],warnings=[];
-  if(!activeSecId)return{nodes:[],edges:[],typeOf:{},orderOf:{},nameOf:{},nodeLevel:new Map(),errors,warnings,redundantIds:new Set(),dupIds:new Set(),selfIds:new Set(),numPhases:0,orphanCount:0};
+  if(!activeSecId)return{nodes:[],edges:[],typeOf:{},orderOf:{},nameOf:{},nodeLevel:new Map(),errors,warnings,redundantIds:new Set(),dupIds:new Set(),selfIds:new Set(),numPhases:0,orphanCount:0,layout:{named:[],byLvl:new Map(),firstSeen:{},colOf:new Map(),issues:[]}};
 
   const secUEs=activeSecUEs();
   const secUEIds=activeSecUEIds();
@@ -142,6 +142,17 @@ function analyze(){
   const orphans=secUEs.filter(u=>!edges.some(e=>e.u1===u.id||e.u2===u.id));
   orphans.forEach(u=>warnings.push({msg:`${u.nombre}: ${LANG==='es'?'sin relaciones':'no relationships'}`,kind:'orphan'}));
 
+  // Horizontal layout (also used by the matrix viewer): position warnings
+  const partial={nodes,edges,orderOf,nameOf,nodeLevel};
+  const layout=computeLayout(partial);
+  const es=LANG==='es';
+  layout.issues.forEach(i=>{
+    const names=i.ids.map(n=>`"${nameOf[n]}"`).join(', ');
+    if(i.kind==='overlap')warnings.push({msg:es?`Se empalman en el nivel F${i.level+1}: ${names}. Cambia su posición horizontal.`:`Overlapping at level F${i.level+1}: ${names}. Change their horizontal position.`,kind:'overlap'});
+    else if(i.kind==='posref')warnings.push({msg:es?`${names}: su posición depende de una UE que ya no está en la matriz, es de su mismo nivel o es ella misma. Se usa la posición automática.`:`${names}: its position depends on a unit that is no longer in the matrix, is at its own level or is itself. Automatic position used.`,kind:'overlap'});
+    else if(i.kind==='poscycle')warnings.push({msg:es?`${names}: su posición forma un ciclo con otras unidades. Se usa la posición automática.`:`${names}: its position forms a loop with other units. Automatic position used.`,kind:'overlap'});
+  });
+
   // Bedrock auto-bottom: if tipo is "Roca madre" ensure it's at max level
   // (informational warning if it's not)
   const bedrocks=secUEs.filter(u=>u.tipo==='Roca madre');
@@ -151,7 +162,7 @@ function analyze(){
     if(uLevel<maxLvl)warnings.push({msg:`${LANG==='es'?'Roca madre':'Bedrock'} "${u.nombre}" ${LANG==='es'?'no está en el nivel más bajo':'is not at the lowest level'}`,kind:'bedrock'});
   });
 
-  return{nodes,edges,typeOf,orderOf,nameOf,nodeLevel,errors,warnings,redundantIds,dupIds,selfIds,numPhases:new Set([...nodeLevel.values()]).size,orphanCount:orphans.length};
+  return{nodes,edges,typeOf,orderOf,nameOf,nodeLevel,errors,warnings,redundantIds,dupIds,selfIds,layout,numPhases:new Set([...nodeLevel.values()]).size,orphanCount:orphans.length};
 }
 
 // ── Undo / Redo ───────────────────────────────────────────

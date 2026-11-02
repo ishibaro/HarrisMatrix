@@ -1,7 +1,7 @@
 {
   "format": "harris-matrix",
-  "version": 4,
-  "exported": "2026-07-09T16:03:20.120Z",
+  "version": 6,
+  "exported": "2026-10-20T19:47:39.925Z",
   "proyecto": {
     "id": "61c8ebec-4f22-4028-9ba6-ea490622dbdf",
     "nombre": "Harris Matrix textbook",
@@ -14,8 +14,24 @@
       "id": "df7a3c2a-47f0-4866-967a-a00d1fb0fe0f",
       "proyecto_id": "61c8ebec-4f22-4028-9ba6-ea490622dbdf",
       "nombre": "Figura 12",
-      "lat": "",
-      "lon": "",
+      "lat": "19.434912",
+      "lon": "-99.131358",
+      "notes": ""
+    },
+    {
+      "id": "0deac7ef-a901-4548-ad3b-5ccc4675ed87",
+      "proyecto_id": "61c8ebec-4f22-4028-9ba6-ea490622dbdf",
+      "nombre": "Casa Águilas",
+      "lat": "19.435484",
+      "lon": "-99.131383",
+      "notes": ""
+    },
+    {
+      "id": "3ddd57c7-e5bd-4952-9bc3-f920fcea6821",
+      "proyecto_id": "61c8ebec-4f22-4028-9ba6-ea490622dbdf",
+      "nombre": "Ajaracas",
+      "lat": "19.434998",
+      "lon": "-99.131963",
       "notes": ""
     }
   ],
@@ -96,11 +112,11 @@
       "nombre": "5",
       "tipo": "Estrato",
       "orden": "",
-      "etiqueta": "",
+      "etiqueta": "Relleno 2",
       "descripcion": "",
-      "munsell": "",
+      "munsell": "10YR 9/2",
       "munsell_nombre": "",
-      "color": "",
+      "color": "#f4e3ca",
       "composicion": "",
       "inclusiones": ""
     },
@@ -159,6 +175,117 @@
       "color": "",
       "composicion": "",
       "inclusiones": ""
+    },
+    {
+      "id": "569c95ed-8965-4a92-9d41-a50dc6c86f28",
+      "seccion_id": "0deac7ef-a901-4548-ad3b-5ccc4675ed87",
+      "nombre": "3",
+      "tipo": "Corte",
+      "orden": "1",
+      "etiqueta": "",
+      "descripcion": "Corte de pozo 2",
+      "munsell": "5YR 7/8",
+      "munsell_nombre": "",
+      "color": "#e99f65",
+      "composicion": "Arcillosa",
+      "inclusiones": "conchas"
+    },
+    {
+      "id": "d48655b2-7014-422e-8aaf-56c2ff22a07b",
+      "seccion_id": "0deac7ef-a901-4548-ad3b-5ccc4675ed87",
+      "nombre": "1",
+      "tipo": "Estrato",
+      "orden": "",
+      "etiqueta": "",
+      "descripcion": "",
+      "munsell": "",
+      "munsell_nombre": "",
+      "color": "",
+      "composicion": "",
+      "inclusiones": ""
+    },
+    {
+      "id": "dde11fee-6fc2-42ba-a639-faee5e7f3fdb",
+      "seccion_id": "0deac7ef-a901-4548-ad3b-5ccc4675ed87",
+      "nombre": "2",
+      "tipo": "Estrato",
+      "orden": "",
+      "etiqueta": "Superficie",
+      "descripcion": "",
+      "munsell": "",
+      "munsell_nombre": "",
+      "color": "",
+      "composicion": "",
+      "inclusiones": ""
+    },
+    {
+      "id": "d00aab7f-5d56-4320-9f2f-4f23c9265af5",
+      "seccion_id": "0deac7ef-a901-4548-ad3b-5ccc4675ed87",
+      "nombre": "x",
+      "tipo": "Estrato",
+      "orden": "",
+      "etiqueta": "",
+      "descripcion": "",
+      "munsell": "",
+      "munsell_nombre": "",
+      "color": "",
+      "composicion": "",
+      "inclusiones": ""
+    },
+    {
+      "id": "75fa1d52-39a4-47be-88cd-22304f8f8328",
+      "seccion_id": "0deac7ef-a901-4548-ad3b-5ccc4675ed87",
+      "nombre": "4",
+      "tipo": "Estrato",
+      "orden": "2",
+      "etiqueta": "",
+      "descripcion": "",
+      "munsell": "",
+      "munsell_nombre": "",
+      "color": "",
+      "composicion": "",
+      "inclusiones": ""
+    }
+  ],
+  "muestras": [
+    {
+      "id": "5379e97c-f234-4417-85b4-3e7fc2b38d5e",
+      "ue_id": "5d1eedbd-e105-43f7-a75c-a2a679884e49",
+      "codigo": "xs11",
+      "bp": 750,
+      "error": 50,
+      "cal": "",
+      "fecha_rel": "Azteca 3",
+      "material": "Wood",
+      "x": "19.435061",
+      "y": "-99.130903",
+      "z": "-2.53"
+    },
+    {
+      "id": "cf4a3b0e-1502-417a-ba84-da65e7bcae7d",
+      "ue_id": "569c95ed-8965-4a92-9d41-a50dc6c86f28",
+      "codigo": "1xvd2026",
+      "bp": 623,
+      "error": 35,
+      "cal": "",
+      "fecha_rel": "Azteca 4",
+      "material": "Hueso",
+      "x": "19.434667",
+      "y": "-99.130949",
+      "z": "-3.45"
+    },
+    {
+      "id": "e3e8062a-d457-48f1-8cb6-cf516133f76e",
+      "ue_id": "5d1eedbd-e105-43f7-a75c-a2a679884e49",
+      "codigo": "2",
+      "bp": 800,
+      "error": 50,
+      "cal": "",
+      "fecha_rel": "Cerámica Tolteca",
+      "material": "Carbón",
+      "x": "19.434879",
+      "y": "-99.130759",
+      "z": "-4.125"
     }
   ],
   "relaciones": [
@@ -239,6 +366,30 @@
       "ue1_id": "8742bca2-9359-4a82-b139-43d225e08053",
       "tipo": "Sobre",
       "ue2_id": "5614901b-d35c-48ed-aa72-11fde68cd419"
+    },
+    {
+      "id": "9985955c-d24f-4eff-90b7-d27dd933e560",
+      "ue1_id": "569c95ed-8965-4a92-9d41-a50dc6c86f28",
+      "tipo": "Sobre",
+      "ue2_id": "d48655b2-7014-422e-8aaf-56c2ff22a07b"
+    },
+    {
+      "id": "e51dd93f-3c34-46f2-b762-500c108f2ac7",
+      "ue1_id": "dde11fee-6fc2-42ba-a639-faee5e7f3fdb",
+      "tipo": "Sobre",
+      "ue2_id": "569c95ed-8965-4a92-9d41-a50dc6c86f28"
+    },
+    {
+      "id": "771d98ee-e04e-4d97-9da2-1076763ca8b0",
+      "ue1_id": "d48655b2-7014-422e-8aaf-56c2ff22a07b",
+      "tipo": "Sobre",
+      "ue2_id": "d00aab7f-5d56-4320-9f2f-4f23c9265af5"
+    },
+    {
+      "id": "66e8461a-c678-4e46-bb5e-a30d6c212d36",
+      "ue1_id": "dde11fee-6fc2-42ba-a639-faee5e7f3fdb",
+      "tipo": "Sobre",
+      "ue2_id": "75fa1d52-39a4-47be-88cd-22304f8f8328"
     }
   ]
 }
