@@ -1,7 +1,8 @@
 
 function uuid(){if(crypto.randomUUID)return crypto.randomUUID();return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0,v=c==='x'?r:(r&0x3|0x8);return v.toString(16)});}
 
-const DB={proyecto:{id:uuid(),nombre:'Proyecto sin título',director:'',temporada:'',fecha:''},secciones:[],unidades:[],relaciones:[]};
+const SCHEMA_VERSION=6;
+const DB={proyecto:{id:uuid(),nombre:'Proyecto sin título',director:'',temporada:'',fecha:''},secciones:[],unidades:[],muestras:[],relaciones:[]};
 let activeSecId=null;
 
 // ── Accessors ──────────────────────────────────────────────
@@ -12,10 +13,34 @@ function ueByNameInSec(name,secId){return DB.unidades.find(u=>u.nombre===name&&u
 function activeSecUEs(){return DB.unidades.filter(u=>u.seccion_id===activeSecId)}
 function activeSecUEIds(){return new Set(activeSecUEs().map(u=>u.id))}
 
+// ── Muestras (samples) ─────────────────────────────────────
+// A sample belongs to exactly one UE (ue_id). Its display ID is
+// "section:UE:code", computed — the UUID is the real link.
+function muestrasOfUE(ueId){return DB.muestras.filter(m=>m.ue_id===ueId)}
+function muestraById(id){return DB.muestras.find(m=>m.id===id)}
+function activeSecMuestras(){const ids=activeSecUEIds();return DB.muestras.filter(m=>ids.has(m.ue_id))}
+function muestraLabel(m){const u=ueById(m.ue_id),s=u?secById(u.seccion_id):null;return[(s?s.nombre:'?'),(u?u.nombre:'?'),(m.codigo||'?')].join(':')}
+function nextMuestraCode(ueId){const used=new Set(muestrasOfUE(ueId).map(m=>String(m.codigo)));let n=used.size+1;while(used.has(String(n)))n++;return String(n)}
+// '' → null · '45' / '45,5' → number · garbage → NaN
+function parseNum(v){if(v===''||v==null)return null;const n=Number(String(v).trim().replace(',','.'));return isFinite(n)?n:NaN}
+// Nominal equivalents of an UNCALIBRATED radiocarbon age. Approximate by
+// design: calibration shifts real dates by centuries. Astronomical year
+// numbering (year 0 exists): 1950 BP = 1 BCE. Hijri years are lunar, so
+// HE = (G - 622) x 33/32 is only an approximation; before the Hijra → BH.
+function nominalDates(bp){
+  if(bp==null||Number.isNaN(bp))return null;
+  const y=Math.round(1950-bp);
+  const greg=y>=1?`${y} CE`:`${1-y} BCE`;
+  const h=(y-622)*33/32;
+  const he=h>=1?`${Math.round(h)} HE`:`${Math.round(1-h)} BH`;
+  return{greg,he};
+}
+function nominalText(bp){const d=nominalDates(bp);return d?`≈ ${d.greg} · ≈ ${d.he}`:''}
+
 function ensureUE(nombre,defaults={}){
   nombre=(nombre||'').trim();if(!nombre)return null;
   let u=ueByNameInSec(nombre,activeSecId);
-  if(!u){u={id:uuid(),seccion_id:activeSecId,nombre,tipo:'Estrato',orden:'',etiqueta:'',descripcion:'',munsell:'',munsell_nombre:'',color:'',composicion:'',inclusiones:'',...defaults};DB.unidades.push(u);}
+  if(!u){u={id:uuid(),seccion_id:activeSecId,nombre,tipo:'Estrato',orden:'',pos_modo:'',pos_a:'',pos_b:'',etiqueta:'',descripcion:'',munsell:'',munsell_nombre:'',color:'',composicion:'',inclusiones:'',...defaults};DB.unidades.push(u);}
   return u;
 }
 
@@ -41,7 +66,7 @@ const REL_MAP={sobre:'sobre',corta:'sobre',encima:'sobre',interfaz:'sobre',conte
 // ── Analyze ────────────────────────────────────────────────
 function analyze(){
   const errors=[],warnings=[];
-  if(!activeSecId)return{nodes:[],edges:[],typeOf:{},orderOf:{},nameOf:{},nodeLevel:new Map(),errors,warnings,redundantIds:new Set(),dupIds:new Set(),selfIds:new Set(),numPhases:0,orphanCount:0};
+  if(!activeSecId)return{nodes:[],edges:[],typeOf:{},orderOf:{},nameOf:{},nodeLevel:new Map(),errors,warnings,redundantIds:new Set(),dupIds:new Set(),selfIds:new Set(),numPhases:0,orphanCount:0,layout:{named:[],byLvl:new Map(),firstSeen:{},colOf:new Map(),issues:[]}};
 
   const secUEs=activeSecUEs();
   const secUEIds=activeSecUEIds();
@@ -117,6 +142,17 @@ function analyze(){
   const orphans=secUEs.filter(u=>!edges.some(e=>e.u1===u.id||e.u2===u.id));
   orphans.forEach(u=>warnings.push({msg:`${u.nombre}: ${LANG==='es'?'sin relaciones':'no relationships'}`,kind:'orphan'}));
 
+  // Horizontal layout (also used by the matrix viewer): position warnings
+  const partial={nodes,edges,orderOf,nameOf,nodeLevel};
+  const layout=computeLayout(partial);
+  const es=LANG==='es';
+  layout.issues.forEach(i=>{
+    const names=i.ids.map(n=>`"${nameOf[n]}"`).join(', ');
+    if(i.kind==='overlap')warnings.push({msg:es?`Se empalman en el nivel F${i.level+1}: ${names}. Cambia su posición horizontal.`:`Overlapping at level F${i.level+1}: ${names}. Change their horizontal position.`,kind:'overlap'});
+    else if(i.kind==='posref')warnings.push({msg:es?`${names}: su posición depende de una UE que ya no está en la matriz, es de su mismo nivel o es ella misma. Se usa la posición automática.`:`${names}: its position depends on a unit that is no longer in the matrix, is at its own level or is itself. Automatic position used.`,kind:'overlap'});
+    else if(i.kind==='poscycle')warnings.push({msg:es?`${names}: su posición forma un ciclo con otras unidades. Se usa la posición automática.`:`${names}: its position forms a loop with other units. Automatic position used.`,kind:'overlap'});
+  });
+
   // Bedrock auto-bottom: if tipo is "Roca madre" ensure it's at max level
   // (informational warning if it's not)
   const bedrocks=secUEs.filter(u=>u.tipo==='Roca madre');
@@ -126,7 +162,7 @@ function analyze(){
     if(uLevel<maxLvl)warnings.push({msg:`${LANG==='es'?'Roca madre':'Bedrock'} "${u.nombre}" ${LANG==='es'?'no está en el nivel más bajo':'is not at the lowest level'}`,kind:'bedrock'});
   });
 
-  return{nodes,edges,typeOf,orderOf,nameOf,nodeLevel,errors,warnings,redundantIds,dupIds,selfIds,numPhases:new Set([...nodeLevel.values()]).size,orphanCount:orphans.length};
+  return{nodes,edges,typeOf,orderOf,nameOf,nodeLevel,errors,warnings,redundantIds,dupIds,selfIds,layout,numPhases:new Set([...nodeLevel.values()]).size,orphanCount:orphans.length};
 }
 
 // ── Undo / Redo ───────────────────────────────────────────
@@ -152,7 +188,7 @@ function redo(){
 function _applySnap(){
   const s=JSON.parse(_undoHist[_undoIdx]);
   DB.proyecto=s.proyecto;DB.secciones=s.secciones;
-  DB.unidades=s.unidades;DB.relaciones=s.relaciones;
+  DB.unidades=s.unidades;DB.muestras=s.muestras||[];DB.relaciones=s.relaciones;
   activeSecId=s._sid||DB.secciones[0]?.id||null;
   _undoing=true;render();_undoing=false;
 }

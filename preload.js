@@ -4,6 +4,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // File dialogs
   openFile: ()             => ipcRenderer.invoke('dialog:open'),
   saveFile: (data, name)   => ipcRenderer.invoke('dialog:save', data, name),
+  saveBinary: (bytes, name) => ipcRenderer.invoke('dialog:saveBinary', bytes, name),
   // Menu sync
   setLang:  (lang)         => ipcRenderer.send('menu:setlang', lang),
   // Receive menu actions (new, open, save, undo, redo)

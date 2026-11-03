@@ -136,6 +136,20 @@ ipcMain.handle('dialog:save', async (_, data, defaultName) => {
   return true
 })
 
+ipcMain.handle('dialog:saveBinary', async (_, bytes, defaultName) => {
+  if (!mainWindow) return false
+  const result = await dialog.showSaveDialog(mainWindow, {
+    defaultPath: defaultName,
+    filters: [
+      { name: 'GeoPackage', extensions: ['gpkg'] },
+      { name: 'All Files',  extensions: ['*'] },
+    ]
+  })
+  if (result.canceled || !result.filePath) return false
+  fs.writeFileSync(result.filePath, Buffer.from(bytes))
+  return true
+})
+
 ipcMain.on('menu:setlang', (_, lang) => {
   currentLang = lang
   buildMenu()

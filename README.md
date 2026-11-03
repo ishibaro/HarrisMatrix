@@ -2,7 +2,7 @@
 
 **A desktop editor for stratigraphic recording. Describe the relationships between stratigraphic units and the Harris Matrix is computed for you.**
 
-*Version 0.5 · [Versión en español](#español)*
+*Version 0.6.2 · [Versión en español](#español)*
 
 ![Screenshot](docs/screenshot.png)
 
@@ -17,14 +17,25 @@ HM is an stratigraphic units composer that helps you build Harris Matrix. Instea
 - Munsell colour picker, unit descriptions, composition and inclusions.
 - Map of sections (Leaflet) and **GeoJSON export**, compatible with QGIS.
 - Interface in English and Spanish. More languages can be added with a single JSON file in `renderer/lang/`.
-- Includes Harris's Figure 12 as a worked example.
+- **Samples** (C14 BP, error, material, x/y/z) attached to each stratigraphic unit, with nominal CE/BCE and HE/BH dates (uncalibrated, approximate).
+- **Automatic horizontal layout** of the matrix. To place a unit elsewhere, put it above/below another unit or between two, with a live preview.
+- **GeoPackage export (.gpkg)** for QGIS: project, excavation units, stratigraphic units, samples and relationships.
+- Includes Harris's Figure 12 and extra cases as a worked example.
 
 ## Get the app
 
-A ready-to-use Windows installer is available here:
+Ready-to-use installers for Windows and macOS are available here:
 **https://ishiba.gumroad.com/l/matrizdeharris**
 
-Buying it supports the development of the project. Mac and Linux builds are planned.
+Buying it supports the development of the project. A Linux build is planned.
+
+**macOS note.** The Mac build is not signed with an Apple developer certificate (it costs 99 USD per year), so macOS blocks it the first time. After dragging the app to *Applications*, open Terminal and run:
+
+```bash
+sudo xattr -rd com.apple.quarantine "/Applications/Matriz de Harris.app"
+```
+
+Then type your password (it won't be displayed) and open the app.
 
 ## Run from source
 
@@ -47,7 +58,7 @@ The result is created in `dist/`.
 
 ## Feedback
 
-This is an early version (0.5). Bug reports and suggestions are very welcome.
+This is an early version (0.6.2). Bug reports and suggestions are very welcome.
 
 ## License
 
@@ -71,14 +82,25 @@ HM es un gestor de unidades estratigráficas que puede producir matrices de Harr
 - Selector de color Munsell, descripción, composición e inclusiones de cada unidad.
 - Mapa de secciones (Leaflet) y **exportación a GeoJSON**, compatible con QGIS.
 - Interfaz en español e inglés. Se pueden añadir más idiomas con un solo archivo JSON en `renderer/lang/`.
-- Incluye la Figura 12 de Harris como ejemplo.
+- **Muestras** (C14 BP, error, material, x/y/z) vinculadas a cada unidad estratigráfica, con fechas nominales CE/BCE y HE/BH (sin calibrar, aproximadas).
+- **Posición horizontal automática** en la matriz. Para colocar una unidad en otro lugar, ponla sobre/bajo otra unidad o entre dos, con vista previa en vivo.
+- **Exportación a GeoPackage (.gpkg)** para QGIS: proyecto, unidades de excavación, unidades estratigráficas, muestras y relaciones.
+- Incluye la Figura 12 de Harris y casos adicionales como ejemplo.
 
 ### Conseguir la aplicación
 
-Hay un instalador listo para usar en Windows:
+Hay instaladores listos para usar en Windows y macOS:
 **https://ishiba.gumroad.com/l/matrizdeharris**
 
-Comprarlo apoya el desarrollo del proyecto. Las versiones para Mac y Linux están planeadas.
+Comprarlo apoya el desarrollo del proyecto. La versión para Linux está planeada.
+
+**Nota para macOS.** La versión para Mac no está firmada con un certificado de desarrollador de Apple (cuesta 99 USD al año), por lo que macOS la bloquea la primera vez. Después de arrastrar la aplicación a *Aplicaciones*, abre la Terminal y ejecuta:
+
+```bash
+sudo xattr -rd com.apple.quarantine "/Applications/Matriz de Harris.app"
+```
+
+Escribe tu contraseña (no se mostrará) y abre la aplicación.
 
 ### Ejecutar desde el código
 
@@ -101,7 +123,7 @@ El resultado se crea en `dist/`.
 
 ### Comentarios
 
-Es una versión temprana (0.5). Los reportes de errores y sugerencias son muy bienvenidos.
+Es una versión temprana (0.6.2). Los reportes de errores y sugerencias son muy bienvenidos.
 
 ### Licencia
 

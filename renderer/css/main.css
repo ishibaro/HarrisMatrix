@@ -71,6 +71,7 @@ button.split-on{border-color:var(--blue);color:var(--blue);background:rgba(59,13
 input,select,textarea{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r);color:var(--text);padding:7px 10px;font-size:12px;font-family:inherit;width:100%;outline:none}
 input:focus,select:focus,textarea:focus{border-color:var(--blue)}
 input::placeholder,textarea::placeholder{color:var(--text3)}
+input[type=radio],input[type=checkbox]{width:auto;padding:0;margin:0;flex:none;accent-color:var(--blue)}
 label.field{display:block;margin-bottom:10px}
 label.field .lbl{display:block;font-size:11px;color:var(--text2);margin-bottom:3px}
 .opt{color:var(--text3);font-weight:400}

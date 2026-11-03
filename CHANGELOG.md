@@ -5,6 +5,62 @@ Licencia: GNU General Public License v3 — https://www.gnu.org/licenses/
 
 ---
 
+## [0.6.2] — 2026-11-02
+
+### Nuevo
+- **Selector de posición horizontal** en la ficha de la UE (reemplaza el campo
+  numérico "Orden horizontal"). Muestra dónde está la unidad ("Automática ·
+  entre 3 y 4") y el botón "Modificar posición" permite elegir: Automática,
+  Sobre/bajo la UE… (misma columna que otra unidad) o Entre las UE… y…. Las
+  listas solo ofrecen unidades de otros niveles. Incluye una **vista previa**
+  en vivo de la matriz, con la unidad resaltada, antes de guardar. Si se borra
+  la unidad de referencia, la unidad vuelve a automática.
+- **Ejemplo por defecto nuevo**: "Harris Matrix textbook", con la Figura 12 de
+  Harris y otras secciones que ejercitan relaciones, cortes, colores Munsell,
+  muestras y coordenadas.
+
+### Mejorado
+- **Posición horizontal automática en la matriz**: las unidades sin posición se
+  reparten solas en su nivel y quedan centradas bajo (o sobre) las unidades con
+  las que se relacionan, sin encimarse.
+- **Aviso de empalme** en Diagnóstico cuando dos unidades del mismo nivel piden
+  la misma posición. También avisa si una posición depende de una unidad que ya
+  no está en la matriz, de su mismo nivel, o forma un ciclo; en esos casos se
+  usa la posición automática.
+- **Texto dentro de las cajas**: las cajas mantienen su tamaño; el nombre se
+  reduce o pasa a dos líneas, y si aún no cabe se corta con "…" (el nombre
+  completo aparece al pasar el cursor y en la ficha de la unidad).
+- README actualizado: instalador de macOS y su instrucción de instalación.
+- Corregido: los botones redondos de la ficha de UE aparecían desalineados
+  respecto a su texto.
+
+### Cambiado
+- Los archivos con el número de orden antiguo siguen funcionando: la ficha
+  muestra la casilla "Usar la posición heredada, orden N" (marcada, con las
+  demás opciones bloqueadas). Al desmarcarla y guardar, el número se descarta.
+- La exportación a GeoPackage ya no incluye la columna `orden` (es solo del
+  dibujo de la matriz).
+
+---
+
+## [0.6]
+
+### Nuevo
+- **Muestras**: nueva tabla vinculada a cada UE (código propio, C14 BP, error,
+  calibrada, fecha relativa, material, x/y/z libres). Pestaña "Muestras" y botón
+  para añadirlas desde las propiedades de la UE.
+- Fechas nominales (CE/BCE y HE/BH) de solo lectura, marcadas como
+  "nominal, sin calibrar, aproximada".
+- **Exportar a GeoPackage (.gpkg)**: botón "GPKG" a la izquierda de "Guardar".
+  Tablas: proyecto, unidades_excavacion, ue, muestras, relaciones y puntos
+  (única con geometría, EPSG:4326). Usa sql.js incluido; funciona sin internet.
+- Formato de archivo .harris.json versión 6 (abre archivos de versiones anteriores).
+
+### Corregido
+- Al cancelar el aviso de "descartar cambios" ya no se pierde lo escrito en el formulario.
+
+---
+
 ## [0.5] — 2026-07-10
 
 Primera versión candidata a release público. Reestructuración completa a

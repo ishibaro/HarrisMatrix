@@ -90,6 +90,7 @@ function renderUnidades(an){
       if(u.munsell)meta.push(u.munsell);
       if(u.inclusiones)meta.push(u.inclusiones.split(',')[0].trim());
       if(u.orden!=='')meta.push(t('order_s')+' '+u.orden);
+      const ns=muestrasOfUE(u.id).length;if(ns)meta.push(ns+' '+t('samples_s'));
       meta.push(rels+' '+t('rels_s'));
       h+=`<div style="font-size:10px;color:var(--text3);margin-top:3px">${meta.map(esc).join(' · ')}</div></div>`;
     });
